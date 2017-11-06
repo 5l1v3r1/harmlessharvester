@@ -1,0 +1,33 @@
+# SETTINGS harmlessharvester.py
+#
+# Only show if the host starts with www. | TBA
+WWWONLY="off"
+#
+# Automaticlly tries to restart the script when it stops working due to a crash
+AUTO_RESTART="off"
+#
+LOGGING="off"
+LOG_DIR="/var/"
+#
+SHOW_IP="on"
+# Do not show the same host again for the next x seconds (prevent spam)
+DUPLICATE_COOLDOWN="60"
+#
+# Email Settings | Working but spams alot! | TBA | ENABLE AT OWN RISK!
+EMAIL_WARNING="off"
+EMAIL_ADDRESS="example@mail.com"
+EMAIL_PASSWORD="MyP@ssw0rdIsL33t"
+EMAIL_SMTP="smtp.example.com"
+EMAIL_PORT="587"
+EMAIL_COOLDOWN="600"
+#
+# DO NOT ENABLE! Encryption script not ready yet! | Use plaintext for now.
+PASSWD_IS_ENCRYPTED="off"
+#
+BLACKLIST="blacklist"
+COLOUR_BLACKLIST="off"
+# Write the beginning of the address to highlight > Example: "192.168."
+# DO NOT KEEP EMPTY, IT WILL TRIGGER A BUG
+COLOUR_LOCAL="192.168."
+#
+CONTROL_PANEL="off"
