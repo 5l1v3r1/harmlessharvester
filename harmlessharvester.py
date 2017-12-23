@@ -21,6 +21,7 @@ except ImportError:
 if not getpass.getuser() == 'root':
     print('[ERROR] Must run as root to read traffic'); sys.exit(1)
 
+# https://docs.python.org/3/library/argparse.html
 def parse_args():
     #Create the arguments
     parser = argparse.ArgumentParser(prog='HarmlessHarvester')
