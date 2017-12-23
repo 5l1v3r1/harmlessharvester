@@ -1,13 +1,9 @@
 #!/usr/bin/python3
-# Version 0.9.1
-import sys, os, socket, time, getpass, threading
+# Version 0.9.x
+import sys, os, socket, time, getpass, threading, argparse
 from datetime import datetime, timedelta
 from logging import getLogger, ERROR
 getLogger('scapy.runtime').setLevel(ERROR)
-from src.read_config import *
-
-if CONFIG.EMAIL_WARNING == True:
-    from src.send_mail import *         # Import mail script
 
 try:
     from scapy.all import *
@@ -25,20 +21,45 @@ except ImportError:
 if not getpass.getuser() == 'root':
     print('[ERROR] Must run as root to read traffic'); sys.exit(1)
 
-if (len(sys.argv) < 2):
+def parse_args():
+    #Create the arguments
+    parser = argparse.ArgumentParser(prog='HarmlessHarvester')
+
+    parser.add_argument("-i",
+                        "--interface",
+                        help="Choose monitor mode interface. \
+                                Example: -i eth0")
+    parser.add_argument("-l", "--log", help="Log traffic to file")
+
+    return parser.parse_args()
+
+args = parse_args()
+
+if args.interface == None:
     print('[ERROR] No interface given'); sys.exit(1)
+else:
+    interface = args.interface
+
+from src.read_config import *
+
+if CONFIG.EMAIL_WARNING == True:
+    from src.send_mail import *         # Import mail script
+
+
+#if (len(sys.argv) < 2):
+#    print('[ERROR] No interface given'); sys.exit(1)
 
 # Temp solution for multiple interfaces, only works with Konsole
-elif (len(sys.argv) > 2):
-    for i in sys.argv:
-        if not i.endswith('.py'):
-            try:
-                os.system("konsole --geometry=90x25 --new-tab -e 'bash -c \"sudo python %s %s ; exec bash\"'" % (sys.argv[0], i))
-            except Exception as e:
-                print('[ERROR] Only supports Konsole! Is it installed? >> %s' % e); sys.exit(1)
-    sys.exit(1)
-else:
-    interface = sys.argv[1]
+#elif (len(sys.argv) > 2):
+#    for i in sys.argv:
+#        if not i.endswith('.py'):
+#            try:
+#                os.system("konsole --geometry=90x25 --new-tab -e 'bash -c \"sudo python %s %s ; exec bash\"'" % (sys.argv[0], i))
+#            except Exception as e:
+#                print('[ERROR] Only supports Konsole! Is it installed? >> %s' % e); sys.exit(1)
+#    sys.exit(1)
+#else:
+#    interface = sys.argv[1]
 
 # Save collected Data for x seconds
 HARVESTER = []
