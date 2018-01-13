@@ -89,7 +89,7 @@ def config_reader():
                 line = line.rstrip(); line = line.replace('"', "")
                 line = line.split('=')
                 if os.path.isdir(line[1]):
-                    CONFIG.LOGFILE = line[1] + 'harmlessharvester - ' + time_date() + '.log'
+                    CONFIG.LOGFILE = line[1] + 'harmlessharvester - ' + time_date() + '.csv'
                     CONFIG.LOG_DIR = line[1]
                     print('\t\033[94m[LOGFILE]\033[0m ' + CONFIG.LOGFILE)
                 else:

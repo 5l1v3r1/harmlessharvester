@@ -21,7 +21,6 @@ except ImportError:
 if not getpass.getuser() == 'root':
     print('[ERROR] Must run as root to read traffic'); sys.exit(1)
 
-# https://docs.python.org/3/library/argparse.html
 def parse_args():
     #Create the arguments
     parser = argparse.ArgumentParser(prog='HarmlessHarvester')
@@ -100,8 +99,8 @@ def check_pkt(pkt):
     data = pkt[Raw].load
 
     # Create new LOGFILE if date changed
-    if not CONFIG.LOGFILE.endswith(time_date() + '.log'):
-        CONFIG.LOGFILE = CONFIG.LOG_DIR + 'harmlessharvester - ' + time_date() + '.log'
+    if not CONFIG.LOGFILE.endswith(time_date() + '.csv'):
+        CONFIG.LOGFILE = CONFIG.LOG_DIR + 'harmlessharvester - ' + time_date() + '.csv'
 
     # If data contains a link
     if 'Referer:' in data:
@@ -127,7 +126,8 @@ def check_pkt(pkt):
             # Print result, depending on situation
             result = '[' + time_date() + ' ' + time_time() + "] \033[1;92m%s" % src + "%s" % (dst).ljust(20) + "| Host: %s\033[0m" % (target[1]).ljust(50)
             result_colour = '[' + time_date() + ' ' + time_time() + "] \033[1;91m%s" % src + "%s" % (dst).ljust(20) + "| Host: %s\033[0m" % (target[1]).ljust(50)
-            result_mail = '[' + time_date() + ' ' + time_time() + "] %s" % src + "%s" % (dst).ljust(20) + "| Host: %s" % (target[1]).ljust(50)
+            #result_mail = '[' + time_date() + ' ' + time_time() + "] %s" % src + "%s" % (dst).ljust(20) + "| Host: %s" % (target[1]).ljust(50)
+            result_mail = time_date() + ' ' + time_time() + ",%s," % src + "%s," % (dst) + "Host: %s" % (target[1])
 
             # The old output: Date > Time > Host > Dest > src
             # New output: Date > Time > Src > Dest > Host
