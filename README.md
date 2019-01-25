@@ -8,3 +8,5 @@ Harmless port 80 data harvester
 This script shows the internet has a cluster bomb effect when visiting a website.
 
 Also used to find unencrypted domains along side with the HTTPS Everywhere browser plugin
+
+Make sure to leave a like and a watch, more features are on his way such as MITM, SSL host dump, logging and packet inspection.
