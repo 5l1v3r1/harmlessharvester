@@ -1,3 +1,4 @@
+![alt text](./icon.png)
 ![alt text](http://leonvoerman.nl/coding/harmlessharvester.png)
 ![alt text](./harmlessharvester_v1.png)
 
