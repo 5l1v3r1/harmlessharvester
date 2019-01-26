@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # Version 1.0.1
-import sys, os, socket, time, getpass, threading, argparse
+import sys, os, time, getpass, threading, webbrowser
 from datetime import datetime, timedelta
 from logging import getLogger, ERROR
 from Tkinter import *
 from ttk import *
+import tkMessageBox
 getLogger('scapy.runtime').setLevel(ERROR)
 
 try:
@@ -40,6 +41,36 @@ class MainWindow(Tk):
             'interface' : StringVar(),
         }
 
+        menu = Menu(self)
+        filemenu = Menu(tearoff=False)
+        mitm = Menu(tearoff=False)
+        logging = Menu(tearoff=False)
+        about = Menu(tearoff=False)
+        menu.add_cascade(label="Sniffing", menu=filemenu)
+        menu.add_cascade(label="MITM", menu=mitm)
+        menu.add_cascade(label="Logging", menu=logging)
+        menu.add_cascade(label="About", menu=about)
+
+        # File dropdown
+        filemenu.add_command(label="Start Sniffing", command=self.start_thread)
+        filemenu.add_command(label="Dump SSL", command=self.soon)
+        filemenu.add_command(label="Clear log", command=self.clear_log)
+        filemenu.add_command(label="Quit", command=self.quit)
+
+        # MITM
+        mitm.add_command(label="Targets", command=self.soon)
+        mitm.add_command(label="Hosts", command=self.soon)
+
+        # Logging
+        logging.add_command(label="Save To File", command=self.soon)
+        logging.add_command(label="Write To File While Capturing", command=self.soon)
+
+        # About dropdown
+        about.add_command(label="Twitter", command=self.open_twitter)
+        about.add_command(label="GitHub", command=self.open_github)
+
+        self.config(menu=menu)
+
         settings = LabelFrame(self, text = 'Data')
         settings.grid(row = 0, column = 1, columnspan = 4)
 
@@ -65,7 +96,15 @@ class MainWindow(Tk):
         self.options['result'].grid(row = 1, column = 1)
         #self.options['result'].bind("<Double-Button-1>", self.drop_to_shell)
 
-        run = Button(result_frame, text = 'Run...', command = self.start_thread, width = 50).grid(row = 2, column = 1)
+        #run = Button(result_frame, text = 'Run...', command = self.start_thread, width = 50).grid(row = 2, column = 1)
+
+    def clear_log(self):
+        self.options['result'].delete(0, END)
+
+    def open_twitter(self):
+        webbrowser.open_new_tab('https://www.twitter.com/TheRealZeznzo')
+    def open_github(self):
+        webbrowser.open_new_tab('https://www.github.com/leonv024')
 
     HARVESTER = []
 
@@ -80,11 +119,21 @@ class MainWindow(Tk):
     harvester_timer = threading.Thread(target=CLEAR_HARVESTER)
     harvester_timer.daemon = True; harvester_timer.start()
 
+    def soon(self):
+        tkMessageBox.showinfo("INFO", "Comming Soon! Please like and watch this github repo - Thank You")
+
     def dump(self):
         sniff(iface=self.options['interface'].get(), prn=self.check_pkt, store=0)
 
     def start_thread(self):
         # Start time thread
+
+        if self.options['interface'].get() == '':
+            tkMessageBox.showwarning("ERROR", "Please enter a interface to sniff with")
+            return
+        else:
+            tkMessageBox.showinfo("INFO", "Sniffing started on interface: %s" % self.options['interface'].get())
+
         run_thread = threading.Thread(target=self.dump)
         run_thread.daemon = True
         run_thread.start()
@@ -151,6 +200,7 @@ class MainWindow(Tk):
                 #result = '[' + time_date() + ' ' + time_time() + "] \033[1;92mHost: %s" % (target[1]).ljust(50) + "%s" % (dst).ljust(20) + "%s\033[0m" % src
 
                 self.options['result'].insert(END, result)
+                self.options['result'].yview(END)
 
                 return
             else:
