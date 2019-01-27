@@ -41,6 +41,9 @@ class MainWindow(Tk):
             'interface' : StringVar(),
         }
 
+        global log
+        log = False
+
         menu = Menu(self)
         filemenu = Menu(tearoff=False)
         mitm = Menu(tearoff=False)
@@ -62,8 +65,8 @@ class MainWindow(Tk):
         mitm.add_command(label="Hosts", command=self.soon)
 
         # Logging
-        logging.add_command(label="Save To File", command=self.soon)
-        logging.add_command(label="Write To File While Capturing", command=self.soon)
+        logging.add_command(label="Save To File", command=self.save_file)
+        logging.add_command(label="Write To File While Capturing", command=self.live_logging)
 
         # About dropdown
         about.add_command(label="Twitter", command=self.open_twitter)
@@ -100,6 +103,24 @@ class MainWindow(Tk):
 
     def clear_log(self):
         self.options['result'].delete(0, END)
+
+    def save_file(self):
+        filepath = './' + time.strftime('%d-%m-%Y_%H-%M-%S') + '.txt'
+        with open(filepath, 'w+') as f:
+            for line in self.options['result'].get(0, END):
+                f.write(line + '\n')
+            f.close()
+        tkMessageBox.showinfo('INFO', 'File save to %s' % filepath)
+
+    def live_logging(self):
+        global log
+        if log == True:
+            log = False
+            tkMessageBox.showinfo('INFO', 'Logging disabled')
+        else:
+            log = True
+            tkMessageBox.showinfo('INFO', 'Logging enabled')
+
 
     def open_twitter(self):
         webbrowser.open_new_tab('https://www.twitter.com/TheRealZeznzo')
@@ -201,6 +222,12 @@ class MainWindow(Tk):
 
                 self.options['result'].insert(END, result)
                 self.options['result'].yview(END)
+
+                if log == True:
+                    filepath = time.strftime('%d-%m-%Y') + '.txt'
+                    with open(filepath, 'a+') as filestreamer:
+                        filestreamer.write(result + '\n')
+                        filestreamer.close()
 
                 return
             else:
