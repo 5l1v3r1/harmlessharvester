@@ -171,27 +171,6 @@ class MainWindow(Tk):
         run_thread.daemon = True
         run_thread.start()
 
-    def run(self):
-        accounts = []
-        if self.options['username'].get() and self.options['ufile'].get():
-            accounts.append(self.options['username'].get())
-            f = self.options['ufile'].get()
-            for l in open(f).readlines():
-                accounts.append(l)
-
-        if not self.options['username'].get():
-            f = self.options['ufile'].get()
-            for l in open(f).readlines():
-                accounts.append(l)
-        else:
-            accounts = [self.options['username'].get()]
-
-        with tqdm(total=(len(accounts)), desc='Progress') as bar:
-            for l in accounts:
-                self.search(l.strip())
-                bar.update(1)
-                time.sleep(float('1.5'))
-
     def read_connection(self, pkt):
         # Read data on TCP port 80 only
         if pkt.haslayer(TCP) and pkt.haslayer(Raw):
