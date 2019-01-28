@@ -42,7 +42,9 @@ class MainWindow(Tk):
         }
 
         global log
+        global pwd
         log = False
+        pwd = False
 
         menu = Menu(self)
         filemenu = Menu(tearoff=False)
@@ -67,6 +69,7 @@ class MainWindow(Tk):
         # Logging
         logging.add_command(label="Save To File", command=self.save_file)
         logging.add_command(label="Write To File While Capturing", command=self.live_logging)
+        logging.add_command(label="Password detection", command=self.password_detection)
 
         # About dropdown
         about.add_command(label="Twitter", command=self.open_twitter)
@@ -120,6 +123,15 @@ class MainWindow(Tk):
         else:
             log = True
             tkMessageBox.showinfo('INFO', 'Logging enabled')
+
+    def password_detection(self):
+        global pwd
+        if pwd == True:
+            pwd = False
+            tkMessageBox.showinfo('INFO', 'Password Detection disabled')
+        else:
+            pwd = True
+            tkMessageBox.showinfo('INFO', 'Password Detection enabled')
 
 
     def open_twitter(self):
@@ -199,6 +211,10 @@ class MainWindow(Tk):
         else:
             return
         data = pkt[Raw].load
+
+        if pwd == True:
+            if 'password' in data:
+                print('Password detected!\n--------------------\n%s' % data)
 
         # If data contains a link
         if 'Referer:' in data:
