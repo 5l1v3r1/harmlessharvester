@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Version 1.0.1
-import sys, os, time, getpass, threading, webbrowser
+import sys, os, time, getpass, threading, webbrowser, socket
 from datetime import datetime, timedelta
 from logging import getLogger, ERROR
 from Tkinter import *
@@ -43,8 +43,10 @@ class MainWindow(Tk):
 
         global log
         global pwd
+        global ssl
         log = False
         pwd = False
+        ssl = False
 
         menu = Menu(self)
         filemenu = Menu(tearoff=False)
@@ -58,7 +60,7 @@ class MainWindow(Tk):
 
         # File dropdown
         filemenu.add_command(label="Start Sniffing", command=self.start_thread)
-        filemenu.add_command(label="Dump SSL", command=self.soon)
+        filemenu.add_command(label="Dump SSL", command=self.ssl_sniff)
         filemenu.add_command(label="Clear log", command=self.clear_log)
         filemenu.add_command(label="Quit", command=self.quit)
 
@@ -124,6 +126,15 @@ class MainWindow(Tk):
             log = True
             tkMessageBox.showinfo('INFO', 'Logging enabled')
 
+    def ssl_sniff(self):
+        global ssl
+        if ssl == True:
+            ssl == False
+            tkMessageBox.showinfo('INFO', 'SSL Sniffing disabled')
+        else:
+            ssl == True
+            tkMessageBox.showinfo('INFO', 'SSL Sniffing enabled')
+
     def password_detection(self):
         global pwd
         if pwd == True:
@@ -184,12 +195,32 @@ class MainWindow(Tk):
     def check_pkt(self, pkt):
         global HARVESTER
 
-        # If TCP 80 > Pass, else > Return
+        # If TCP 80 or TCP 443 > Pass, else > Return
         if self.read_connection(pkt):
             pass
         else:
             return
+
         data = pkt[Raw].load
+
+        # Dump src and dst for SSL and HTTP
+        src = pkt[IP].src
+        dst = ' >> ' + pkt[IP].dst
+
+        if dst not in HARVESTER:
+            HARVESTER.append(dst)
+
+            try:
+                host = socket.gethostbyaddr(pkt[IP].dst)[0] # Try to resolve host
+            except Exception:
+                host = 'Failed to resolve host' # Error of failed and continue
+
+            result = '[' + time_date() + ' ' + time_time() + "] %s" % src + "%s" % (dst).ljust(20) + "| Host: %s" % (host).ljust(50)
+
+            self.options['result'].insert(END, result)
+            self.options['result'].yview(END)
+
+
 
         if pwd == True:
             if 'password' in data:
