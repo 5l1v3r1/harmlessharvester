@@ -29,7 +29,7 @@ from src.read_config import *
 class MainWindow(Tk):
     def __init__(self):
         Tk.__init__(self)
-        self.title(string = 'Harmless Harvester - HTTP traffic dump')
+        self.title(string = 'Harmless Harvester - HTTP/HTTPS traffic dump')
         self.resizable(0,0)
         #self.style = Style()
         #self.style.theme_use("clam")
