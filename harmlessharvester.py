@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 # Version 0.9.x
 import sys, os, socket, time, getpass, threading, argparse
 from datetime import datetime, timedelta
@@ -81,7 +81,7 @@ harvester_timer.daemon = True; harvester_timer.start()
 def read_connection(pkt):
     # Read data on TCP port 80 only
     if pkt.haslayer(TCP) and pkt.haslayer(Raw):
-        if pkt[TCP].dport == 80 or pkt[TCP].sport == 80:
+        if pkt[TCP].dport == 80 or pkt[TCP].sport == 80 or pkt[TCP].dport == 443 or pkt[TCP].sport == 443:
             return True
         else:
             return False
@@ -99,8 +99,26 @@ def check_pkt(pkt):
     data = pkt[Raw].load
 
     # Create new LOGFILE if date changed
-    if not CONFIG.LOGFILE.endswith(time_date() + '.csv'):
-        CONFIG.LOGFILE = CONFIG.LOG_DIR + 'harmlessharvester - ' + time_date() + '.csv'
+    if not CONFIG.LOGFILE.endswith(time_date() + '.log'):
+        CONFIG.LOGFILE = CONFIG.LOG_DIR + 'harmlessharvester - ' + time_date() + '.log'
+
+    # Dump src and dst for SSL and HTTP
+    src = pkt[IP].src
+    dst = ' >> ' + pkt[IP].dst
+
+    if dst not in HARVESTER:
+        HARVESTER.append(dst)
+
+        try:
+            host = socket.gethostbyaddr(pkt[IP].dst)[0] # Try to resolve host
+        except Exception:
+            host = 'Failed to resolve host' # Error of failed and continue
+
+        result = '[' + time_date() + ' ' + time_time() + "] \033[1;92m%s" % src + "%s" % (dst).ljust(20) + "| Host: %s\033[0m" % (host).ljust(50)
+        result_colour = '[' + time_date() + ' ' + time_time() + "] \033[1;91m%s" % src + "%s" % (dst).ljust(20) + "| Host: %s\033[0m" % (host).ljust(50)
+        result_mail = '[' + time_date() + ' ' + time_time() + "] %s" % src + "%s" % (dst).ljust(20) + "| Host: %s" % (host).ljust(50)
+
+        print(result)
 
     # If data contains a link
     if 'Referer:' in data:
@@ -126,8 +144,7 @@ def check_pkt(pkt):
             # Print result, depending on situation
             result = '[' + time_date() + ' ' + time_time() + "] \033[1;92m%s" % src + "%s" % (dst).ljust(20) + "| Host: %s\033[0m" % (target[1]).ljust(50)
             result_colour = '[' + time_date() + ' ' + time_time() + "] \033[1;91m%s" % src + "%s" % (dst).ljust(20) + "| Host: %s\033[0m" % (target[1]).ljust(50)
-            #result_mail = '[' + time_date() + ' ' + time_time() + "] %s" % src + "%s" % (dst).ljust(20) + "| Host: %s" % (target[1]).ljust(50)
-            result_mail = time_date() + ' ' + time_time() + ",%s," % src + "%s," % (dst) + "Host: %s" % (target[1])
+            result_mail = '[' + time_date() + ' ' + time_time() + "] %s" % src + "%s" % (dst).ljust(20) + "| Host: %s" % (target[1]).ljust(50)
 
             # The old output: Date > Time > Host > Dest > src
             # New output: Date > Time > Src > Dest > Host
