@@ -1,11 +1,11 @@
-#!/usr/bin/env python
-# Version 1.0.1
+#!/usr/bin/env python3
+# Version 2.0.1
 import sys, os, time, getpass, threading, webbrowser, socket
 from datetime import datetime, timedelta
 from logging import getLogger, ERROR
-from Tkinter import *
-from ttk import *
-import tkMessageBox
+from tkinter import *
+from tkinter.ttk import *
+from tkinter import messagebox
 getLogger('scapy.runtime').setLevel(ERROR)
 
 try:
@@ -24,7 +24,7 @@ except ImportError:
 if not getpass.getuser() == 'root':
     print('[ERROR] Must run as root to read traffic'); sys.exit(1)
 
-from src.read_config import *
+#from src.read_config import *
 
 class MainWindow(Tk):
     def __init__(self):
@@ -115,34 +115,34 @@ class MainWindow(Tk):
             for line in self.options['result'].get(0, END):
                 f.write(line + '\n')
             f.close()
-        tkMessageBox.showinfo('INFO', 'File save to %s' % filepath)
+        messagebox.showinfo('INFO', 'File save to %s' % filepath)
 
     def live_logging(self):
         global log
         if log == True:
             log = False
-            tkMessageBox.showinfo('INFO', 'Logging disabled')
+            messagebox.showinfo('INFO', 'Logging disabled')
         else:
             log = True
-            tkMessageBox.showinfo('INFO', 'Logging enabled')
+            messagebox.showinfo('INFO', 'Logging enabled')
 
     def ssl_sniff(self):
         global ssl
         if ssl == True:
             ssl == False
-            tkMessageBox.showinfo('INFO', 'SSL Sniffing disabled')
+            messagebox.showinfo('INFO', 'SSL Sniffing disabled')
         else:
             ssl == True
-            tkMessageBox.showinfo('INFO', 'SSL Sniffing enabled')
+            messagebox.showinfo('INFO', 'SSL Sniffing enabled')
 
     def password_detection(self):
         global pwd
         if pwd == True:
             pwd = False
-            tkMessageBox.showinfo('INFO', 'Password Detection disabled')
+            messagebox.showinfo('INFO', 'Password Detection disabled')
         else:
             pwd = True
-            tkMessageBox.showinfo('INFO', 'Password Detection enabled')
+            messagebox.showinfo('INFO', 'Password Detection enabled')
 
 
     def open_twitter(self):
@@ -164,7 +164,7 @@ class MainWindow(Tk):
     harvester_timer.daemon = True; harvester_timer.start()
 
     def soon(self):
-        tkMessageBox.showinfo("INFO", "Comming Soon! Please like and watch this github repo - Thank You")
+        messagebox.showinfo("INFO", "Comming Soon! Please like and watch this github repo - Thank You")
 
     def dump(self):
         sniff(iface=self.options['interface'].get(), prn=self.check_pkt, store=0)
@@ -173,10 +173,10 @@ class MainWindow(Tk):
         # Start time thread
 
         if self.options['interface'].get() == '':
-            tkMessageBox.showwarning("ERROR", "Please enter a interface to sniff with")
+            messagebox.showwarning("ERROR", "Please enter a interface to sniff with")
             return
         else:
-            tkMessageBox.showinfo("INFO", "Sniffing started on interface: %s" % self.options['interface'].get())
+            messagebox.showinfo("INFO", "Sniffing started on interface: %s" % self.options['interface'].get())
 
         run_thread = threading.Thread(target=self.dump)
         run_thread.daemon = True
@@ -215,7 +215,7 @@ class MainWindow(Tk):
             except Exception:
                 host = 'Failed to resolve host' # Error of failed and continue
 
-            result = '[' + time_date() + ' ' + time_time() + "] %s" % src + "%s" % (dst).ljust(20) + "| Host: %s" % (host).ljust(50)
+            result = '[' + time.strftime('%d-%m-%Y') + ' ' + time.strftime('%X') + "] %s" % src + "%s" % (dst).ljust(20) + "| Host: %s" % (host).ljust(50)
 
             self.options['result'].insert(END, result)
             self.options['result'].yview(END)
@@ -223,13 +223,13 @@ class MainWindow(Tk):
 
 
         if pwd == True:
-            if 'password' in data:
+            if b'password' in data:
                 print('Password detected!\n--------------------\n%s' % data)
 
         # If data contains a link
-        if 'Referer:' in data:
-            link = data.split('\r') # Find hostname
-            target = link[1].split(" ") # Get "just" the hostname
+        if b'Referer:' in data:
+            link = data.split(b'\r') # Find hostname
+            target = link[1].split(b' ') # Get "just" the hostname
             if target[1] not in HARVESTER:
                 HARVESTER.append(target[1])
 
@@ -240,7 +240,7 @@ class MainWindow(Tk):
 
 
                 # Print result, depending on situation
-                result = '[' + time_date() + ' ' + time_time() + "] %s" % src + "%s" % (dst).ljust(20) + "| Host: %s" % (target[1]).ljust(50)
+                result = '[' + time.strftime('%d-%-m-%Y') + ' ' + time.strftime('%X') + "] %s" % src + "%s" % (dst).ljust(20) + "| Host: %s" % (target[1]).ljust(50)
 
                 # The old output: Date > Time > Host > Dest > src
                 # New output: Date > Time > Src > Dest > Host
