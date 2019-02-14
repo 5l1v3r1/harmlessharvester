@@ -139,6 +139,17 @@ class Login(Tk):
         else:
             pass
 
+        # check if username already exists
+        try:
+            for user in open('./users.txt').readlines():
+                if user.split(':')[0] == self.options['reg_username'].get():
+                    messagebox.showwarning('ERROR', 'Username already exists!')
+                    return
+                else:
+                    pass
+        except Exception:
+            pass
+
         # Write data to local file
         with open('./users.txt', 'a+') as f:
             f.write('%s:%s\n' % (self.options['reg_username'].get(), hashlib.sha256(self.options['reg_password'].get().encode('utf-8')).hexdigest()))
